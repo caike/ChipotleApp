@@ -26,7 +26,8 @@ const Footer = () => {
           style={{
             padding: 20,
             color: "white",
-            fontSize: 20,
+            fontWeight: "bold",
+            fontSize: 15,
             textTransform: "uppercase",
           }}
         >

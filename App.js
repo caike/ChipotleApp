@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, SafeAreaView } from "react-native";
+import { StyleSheet, SafeAreaView, View } from "react-native";
 
 import Header from "./Header";
 import ItemList from "./ItemList";
@@ -9,11 +9,11 @@ export default function App() {
   return (
     <>
       <SafeAreaView style={{ flex: 0 }} />
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Header />
         <ItemList />
         <Footer />
-      </SafeAreaView>
+      </View>
     </>
   );
 }
