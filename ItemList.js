@@ -12,6 +12,14 @@ import {
 const { width } = Dimensions.get("window");
 
 const ItemList = () => {
+  const [splitSection, setSplitSection] = React.useState();
+  const [showError, setShowError] = React.useState();
+  const selectedSections = React.useRef({});
+
+  const clearError = () => {
+    setShowError(false);
+  };
+
   return (
     <View style={styles.container}>
       <SectionList
@@ -26,6 +34,7 @@ const ItemList = () => {
               "sofritas",
               "veggie",
             ],
+            maxSelection: 2,
           },
           {
             title: "Rice",
@@ -36,8 +45,40 @@ const ItemList = () => {
             data: ["Black beans", "Pinto Beans"],
           },
         ]}
-        renderItem={({ item }) => {
-          return <MenuItem item={item} />;
+        renderItem={({ item, section }) => {
+          const sectionTitle = section.title;
+          const addToSection = (isAddingItem, selectItemCB) => {
+            const ss = selectedSections.current;
+
+            if (isAddingItem) {
+              ss[sectionTitle]
+                ? (ss[sectionTitle] += 1)
+                : (ss[sectionTitle] = 1);
+              if (ss[sectionTitle] <= section.maxSelection) {
+                selectItemCB();
+              } else {
+                setShowError(item);
+                ss[sectionTitle] -= 1;
+              }
+              if (ss[sectionTitle] > 1) {
+                setSplitSection(sectionTitle);
+              }
+            } else {
+              selectItemCB();
+              setSplitSection(null);
+              ss[sectionTitle] -= 1;
+            }
+          };
+          return (
+            <MenuItem
+              item={item}
+              splitSection={splitSection}
+              section={sectionTitle}
+              showError={showError}
+              clearError={clearError}
+              addToSection={addToSection}
+            />
+          );
         }}
         renderSectionHeader={({ section }) => (
           <Text style={styles.sectionHeader}>{section.title}</Text>
@@ -48,17 +89,32 @@ const ItemList = () => {
   );
 };
 
-const MenuItem = ({ item }) => {
+const MenuItem = ({
+  item,
+  showError,
+  clearError,
+  splitSection,
+  section,
+  addToSection,
+}) => {
   const [isSelected, setIsSelected] = useState(false);
-
+  const shouldSplit = splitSection === section;
+  const shouldShowError = showError === item;
   return (
     <View>
       <TouchableOpacity
         activeOpacity={1}
         style={styles.itemRow}
-        onPress={() => setIsSelected((state) => !state)}
+        onPress={() => {
+          addToSection(!isSelected, () => setIsSelected((state) => !state));
+        }}
       >
         <View style={styles.itemInfo}>
+          {shouldShowError && setTimeout(() => clearError(), 2500) && (
+            <Text style={styles.itemMaxError}>
+              You can only choose 2 fillings
+            </Text>
+          )}
           <Image style={styles.itemImage} source={getImageSource(item)} />
           <View>
             <Text style={styles.itemText}>{item}</Text>
@@ -66,7 +122,9 @@ const MenuItem = ({ item }) => {
         </View>
         {isSelected && (
           <View style={styles.itemIsSelected}>
-            <Text style={styles.itemIsSelectedText}>✓</Text>
+            <Text style={styles.itemIsSelectedText}>
+              {shouldSplit ? "1/2" : "✓"}
+            </Text>
           </View>
         )}
       </TouchableOpacity>
@@ -153,7 +211,17 @@ const styles = StyleSheet.create({
   },
   itemIsSelectedText: {
     color: "white",
-    fontSize: 25,
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  itemMaxError: {
+    position: "absolute",
+    backgroundColor: "#451400",
+    color: "white",
+    fontWeight: "bold",
+    marginLeft: width / 20,
+    padding: 10,
+    zIndex: 10,
   },
 });
 
