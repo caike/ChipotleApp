@@ -1,9 +1,9 @@
 import React from "react";
 import { StyleSheet, SafeAreaView, View } from "react-native";
 
-import Header from "./Header";
-import ItemList from "./ItemList";
-import Footer from "./Footer";
+import Header from "./components/Header";
+import ItemList from "./components/ItemList";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (
